@@ -31,9 +31,14 @@ CREATE TABLE exercise_sets(
     weight NUMERIC,
     reps INT NOT NULL,
     exercise_id INT NOT NULL,
+    set_number INT NOT NULL DEFAULT 1,
     CONSTRAINT fk_exercise
         FOREIGN KEY(exercise_id) REFERENCES exercises(id)
         ON DELETE CASCADE,
     CONSTRAINT reps_nonnegative CHECK(reps >= 0),
-    CONSTRAINT weight_nonnegative CHECK(weight IS NULL OR weight >= 0)
+    CONSTRAINT weight_nonnegative CHECK(weight IS NULL OR weight >= 0),
+    CONSTRAINT unique_set_per_exercise
+        UNIQUE (exercise_id, set_number),
+    CONSTRAINT set_number_positive
+        CHECK (set_number >= 1)
 );
