@@ -19,10 +19,13 @@ CREATE TABLE workouts(
 CREATE TABLE exercises(
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
+    position INT NOT NULL,
     workout_id INT NOT NULL,
     CONSTRAINT fk_workout
         FOREIGN KEY(workout_id) REFERENCES workouts(id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT unique_exercise_position
+         UNIQUE (workout_id, position)
 );
 
 
