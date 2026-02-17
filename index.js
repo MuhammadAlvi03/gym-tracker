@@ -8,9 +8,9 @@ const app = express();
 app.use(express.json());
 
 // mock DB
-const workouts = [];
+let workouts = [];
 let nextWorkoutId = 1;
-const exercises = [];
+let exercises = [];
 let nextExerciseId = 1;
 
 
@@ -47,14 +47,50 @@ app.post("/workouts", (req, res) => {
     res.status(201).json(createdWorkout);   // set status to 201: creation successful
 })
 
-// get workout by id
-app.get("/workouts/:id", (req, res) => {
-    const id = Number(req.params.id);
-    const workout = workouts.find((w) => w.id === id)
+// update workout
+app.patch("/workouts/:workoutId", (req, res) => {
+    const workoutId = Number(req.params.workoutId);
+    const workout = workouts.find(w => w.id === workoutId)
     if (!workout) {
-        return res.status(400).json({error: "workout not found"});
+        return res.status(404).json({error: "workout not found"});
     }
-    res.json(workout);
+
+    const { name } = req.body;
+    if (name === undefined) {
+        res.status(400).json({error: "no fields provided to update"});
+    }
+    
+    workout.name = name;
+    res.status(200).json(workout);
+    
+})
+
+// get workout and exercises by id
+app.get("/workouts/:workoutId", (req, res) => {
+    const workoutId = Number(req.params.workoutId);
+    const workout = workouts.find(w => w.id === workoutId)
+    if (!workout) {
+        return res.status(404).json({error: "workout not found"});
+    }
+
+    const filteredExercises = exercises.filter(e => e.workoutId === workoutId)
+    res.json({
+        workout,
+        exericses: filteredExercises
+    });
+})
+
+// delete workout
+app.delete("/workouts/:workoutId", (req, res) => {
+    const workoutId = Number(req.params.workoutId);
+    const workout = workouts.find(w => w.id === workoutId)
+    if (!workout) {
+        return res.status(404).json({error: "workout not found"});
+    }
+
+    workouts = workouts.filter(w => w.id !== workoutId)
+    exercises = exercises.filter(e => e.workoutId !== workoutId);
+    res.status(204).send();
 })
 
 
