@@ -109,14 +109,34 @@ app.post("/workouts/:workoutId/exercises", (req, res) => {
         return res.status(404).json({error: `no workout with id: ${workoutId} found`});
     }
 
-    const { name } = req.body;
-    if (!name) {
-        return res.status(400).json({error: "name is required"});
+    let { name, position } = req.body;
+    
+    if (typeof(name) !== "string" || !name.trim()) {
+        return res.status(400).json({error: "Name is required"});
     }
 
-    const createdExercise = { id: nextExerciseId, name, workoutId };
+    if (position === undefined) {
+        return res.status(400).json({error: "Position is required"});    
+    }
+
+    position = Number(position);
+    if (!Number.isInteger(position) || position < 1) {
+        return res.status(400).json({error: "Position must be a positive integer"});
+    }
+
+    const collision = exercises.some(e => e.position === position && e.workoutId === workoutId);
+    if (collision) {
+        return res.status(409).json({error: "Position already exists in this workout"})
+    }
+
+    const createdExercise = {
+        id: nextExerciseId,
+        name: name.trim(),
+        position,
+        workoutId
+    };
+
     nextExerciseId++;
-    
     exercises.push(createdExercise);
     res.status(201).json(createdExercise);
 
@@ -132,14 +152,13 @@ app.get("/workouts/:workoutId/exercises", (req, res) => {
         return res.status(404).json({ error: `no workout with id: ${workoutId} found`});
     }
     
-    const filtered = exercises.filter(e => e.workoutId === workoutId);
+    const filtered = exercises.filter(e => e.workoutId === workoutId).sort((a, b) => a.position - b.position);
     res.json(filtered);
 })
 
 
 // get exercise by ID
 app.get("/exercises/:exerciseId", (req, res) => {
-
     const exerciseId = Number(req.params.exerciseId);
     const exercise = exercises.find(e => e.id === exerciseId);
 
@@ -148,7 +167,51 @@ app.get("/exercises/:exerciseId", (req, res) => {
     }
     const exerciseSets = sets.filter(s => s.exerciseId === exerciseId).sort((a, b) => a.setNumber - b.setNumber);
 
-    res.status(200).json({exercise, sets: exerciseSets});
+    res.status(200).json({...exercise, sets: exerciseSets});
+})
+
+// update exercise
+app.patch("/exercises/:exerciseId", (req, res) => {
+    const exerciseId = Number(req.params.exerciseId);
+    const exercise = exercises.find(e => e.id === exerciseId);
+    if (!exercise) {
+        return res.status(404).json({ error: `No exercise with id: ${exerciseId} found`});
+    }
+    let { name, position } = req.body;
+    
+    if (name === undefined && position === undefined) {
+        return res.status(400).json({error: "No fields provided to update"});
+    }
+
+    if (name !== undefined) {
+        if (typeof(name) !== "string" || !name.trim()) {
+            return res.status(400).json({error: "Invalid name"})
+        }
+
+        exercise.name = name.trim();
+    }
+
+    if (position !== undefined) {
+        position = Number(position);
+        if (!Number.isInteger(position) || position < 1) {
+            return res.status(400).json({error: "Position must be a positive integer"})
+        }
+        
+        const collision = exercises.some(e => 
+            e.position === position &&
+            e.workoutId === exercise.workoutId &&
+            e.id !== exerciseId
+        );
+
+        if (collision) {
+            return res.status(409).json({error: "Position already exists in this workout"})
+        }
+
+        exercise.position = position;
+    }
+
+    res.status(200).json(exercise);
+
 })
 
 
