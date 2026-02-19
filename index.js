@@ -12,7 +12,8 @@ let workouts = [];
 let nextWorkoutId = 1;
 let exercises = [];
 let nextExerciseId = 1;
-
+let sets = [];
+let nextSetId = 1;
 
 // main page
 app.get("/", (req, res) => {
@@ -22,18 +23,18 @@ app.get("/", (req, res) => {
 
 // get workouts
 app.get("/workouts", (req, res) => {
-    const { name } = req.query;
-    if (name) {
-        const filtered = workouts.filter(w => w.name === name);
-        return res.json(filtered);
-    }
-
     res.json(workouts);
 });
 
 // create new workout
 app.post("/workouts", (req, res) => {
-    const { name } = req.body;
+    let { name } = req.body;
+    
+    if (typeof(name) !== "string") {
+        return res.status(400).json({ error: "Invalid name"});
+    }
+
+    name = name.trim();
     
     if (!name) {
         return res.status(400).json({ error: "name is required" });
@@ -57,7 +58,7 @@ app.patch("/workouts/:workoutId", (req, res) => {
 
     const { name } = req.body;
     if (name === undefined) {
-        res.status(400).json({error: "no fields provided to update"});
+        return res.status(400).json({error: "no fields provided to update"});
     }
     
     workout.name = name;
@@ -76,7 +77,7 @@ app.get("/workouts/:workoutId", (req, res) => {
     const filteredExercises = exercises.filter(e => e.workoutId === workoutId)
     res.json({
         workout,
-        exericses: filteredExercises
+        exericse: filteredExercises
     });
 })
 
@@ -122,11 +123,54 @@ app.get("/workouts/:workoutId/exercises", (req, res) => {
     const workout = workouts.find(w => w.id === workoutId);
     
     if (!workout) {
-        return res.status(404).json({error: `no workout with id: ${workoutId} found`});
+        return res.status(404).json({ error: `no workout with id: ${workoutId} found`});
     }
     
     const filtered = exercises.filter(e => e.workoutId === workoutId);
     res.json(filtered);
+})
+
+
+// add set
+app.post("/exercises/:exerciseId/sets", (req, res) => {
+    const exerciseId = Number(req.params.exerciseId);
+    let { setNumber, weight, reps } = req.body;
+
+
+    setNumber = Number(setNumber);
+    weight = Number(weight);
+    reps = Number(reps);
+
+    const exercise = exercises.find(e => e.id === exerciseId);
+
+    if (!exercise) {
+        return res.status(404).json({ error: "No exercise found"});
+    }
+
+    if (!Number.isInteger(setNumber) || setNumber < 1) {
+        return res.status(400).json({error: "Invalid set number"});
+    }
+
+    if (!Number.isFinite(weight) || weight < 0) {
+        return res.status(400).json({error: "Invalid weight"});
+    }
+
+    if (!Number.isInteger(reps) || reps < 1) {
+        return res.status(400).json({ error: "Invalid rep count"});
+    }
+
+    const collision = sets.some(s => s.exerciseId === exerciseId && s.setNumber === setNumber);
+    if (collision) {
+        return res.status(409).json({error: `Set number ${setNumber} already exists for this exercise`})
+    }
+
+    const createdSet = { id: nextSetId, setNumber, weight, reps, exerciseId};
+    nextSetId++;
+
+    sets.push(createdSet);
+
+    const filtered = sets.filter(s => s.exerciseId === exerciseId).sort((a, b) => a.setNumber - b.setNumber);
+    res.status(201).json(filtered);
 })
 
 
