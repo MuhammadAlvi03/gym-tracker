@@ -53,13 +53,19 @@ app.patch("/workouts/:workoutId", (req, res) => {
     const workoutId = Number(req.params.workoutId);
     const workout = workouts.find(w => w.id === workoutId)
     if (!workout) {
-        return res.status(404).json({error: "workout not found"});
+        return res.status(404).json({error: "Workout not found"});
     }
 
-    const { name } = req.body;
+    let { name } = req.body;
     if (name === undefined) {
-        return res.status(400).json({error: "no fields provided to update"});
+        return res.status(400).json({error: "No fields provided to update"});
     }
+
+    if (typeof(name) !== "string" || name === "") {
+        return res.status(400).json({error: "Invalid name"});
+    }
+
+    name = name.trim();
     
     workout.name = name;
     res.status(200).json(workout);
@@ -77,7 +83,7 @@ app.get("/workouts/:workoutId", (req, res) => {
     const filteredExercises = exercises.filter(e => e.workoutId === workoutId)
     res.json({
         workout,
-        exericse: filteredExercises
+        exercises: filteredExercises
     });
 })
 
@@ -117,7 +123,7 @@ app.post("/workouts/:workoutId/exercises", (req, res) => {
 });
 
 
-// get exercises
+// get exercises for a specific workout
 app.get("/workouts/:workoutId/exercises", (req, res) => {
     const workoutId = Number(req.params.workoutId);
     const workout = workouts.find(w => w.id === workoutId);
@@ -128,6 +134,21 @@ app.get("/workouts/:workoutId/exercises", (req, res) => {
     
     const filtered = exercises.filter(e => e.workoutId === workoutId);
     res.json(filtered);
+})
+
+
+// get exercise by ID
+app.get("/exercises/:exerciseId", (req, res) => {
+
+    const exerciseId = Number(req.params.exerciseId);
+    const exercise = exercises.find(e => e.id === exerciseId);
+
+    if (!exercise) {
+        return res.status(404).json({ error: `No exercise with id: ${exerciseId} found`});
+    }
+    const exerciseSets = sets.filter(s => s.exerciseId === exerciseId).sort((a, b) => a.setNumber - b.setNumber);
+
+    res.status(200).json({exercise, sets: exerciseSets});
 })
 
 
@@ -166,11 +187,26 @@ app.post("/exercises/:exerciseId/sets", (req, res) => {
 
     const createdSet = { id: nextSetId, setNumber, weight, reps, exerciseId};
     nextSetId++;
-
     sets.push(createdSet);
 
+    res.status(201).json(createdSet);
+})
+
+
+// get sets for a specific exercise
+app.get("/exercises/:exerciseId/sets", (req, res) => {
+    const exerciseId = Number(req.params.exerciseId);
+    const exercise = exercises.find(e => e.id === exerciseId);
+    if (!exercise) {
+        return res.status(404).json({error: "Exercise not found"});
+    }
+
     const filtered = sets.filter(s => s.exerciseId === exerciseId).sort((a, b) => a.setNumber - b.setNumber);
-    res.status(201).json(filtered);
+    if (filtered.length === 0) {
+        return res.status(200).json([]);
+    }
+
+    res.status(200).json(filtered);
 })
 
 
