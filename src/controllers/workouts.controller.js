@@ -1,5 +1,6 @@
 import {
     findAll,
+    findById,
     create, 
     updateName} from "../data/workouts.data.js";
 
@@ -54,4 +55,18 @@ export const updateWorkout = (req, res) => {
     }
 
     res.status(200).json(updated);
+}
+
+export const getWorkoutById = (req, res) => {
+    const workoutId = Number(req.params.workoutId);
+    if (!Number.isInteger(workoutId) || workoutId < 1) {
+        return res.status(400).json({error: "Invalid workoutId"});
+    }
+
+    const workout = findById(workoutId);
+    if (!workout) {
+        return res.status(404).json({error: "No workout found"});
+    }
+
+    res.status(200).json(workout);
 }
