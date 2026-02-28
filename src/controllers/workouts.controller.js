@@ -2,7 +2,9 @@ import {
     findAll,
     findById,
     create, 
-    updateName} from "../data/workouts.data.js";
+    updateName,
+    deleteById
+} from "../data/workouts.data.js";
 
 // get workouts
 export const getWorkouts = (req, res) => {
@@ -69,4 +71,18 @@ export const getWorkoutById = (req, res) => {
     }
 
     res.status(200).json(workout);
+}
+
+export const deleteWorkout = (req, res) => {
+    const workoutId = Number(req.params.workoutId);
+    if (!Number.isInteger(workoutId) || workoutId < 1) {
+        return res.status(400).json({error: "Invalid workoutId"});
+    }
+    
+
+    if (!deleteById(workoutId)) {
+        return res.status(404).json({error: "No workout found"});
+    }
+
+    res.status(204);
 }

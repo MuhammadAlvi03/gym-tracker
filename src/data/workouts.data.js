@@ -25,3 +25,10 @@ export const updateName = (id, name) => {
     workout.name = name;
     return workout;
 }
+
+export const deleteById = (id) => {
+    const workout = findById(id);
+    if (!workout) return false;
+    workouts = workouts.filter(w => w.id !== id);
+    return true;
+}
