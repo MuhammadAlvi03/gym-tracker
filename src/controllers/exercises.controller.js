@@ -52,6 +52,7 @@ export const updateExerciseName = (req, res) => {
     if (name === undefined) {
         return res.status(400).json({error: "No fields provided to update"});
     }
+    
     if (typeof(name) !== "string" || !name.trim()) {
         return res.status(400).json({error: "Invalid name"});
     }

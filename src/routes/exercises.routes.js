@@ -9,6 +9,6 @@ const router = Router({mergeParams: true});
 
 router.get("/", getExercises);
 router.post("/", createExercise);
-router.post("/", updateExerciseName);
+router.patch("/:exerciseId", updateExerciseName);
 
 export default router;

@@ -7,10 +7,7 @@ export const findByWorkoutId = (workoutId) => {
     return exercises.filter(e => e.workoutId === workoutId);
 }
 
-
-const findByExerciseId = (exerciseId) => {
-    return exercises.filter(e => e.id === exerciseId);
-}
+const findByExerciseId = (id) => exercises.find(e => e.id === id) ?? null;
 
 
 const getNextPosition = (workoutId) => {
@@ -34,7 +31,7 @@ export const create = (workoutId, name) => {
 
 
 export const updateName = (exerciseId, name) => {
-    const exercise = findByExerciseId(workoutId);
+    const exercise = findByExerciseId(exerciseId);
     if (!exercise) return null;
     
     exercise.name = name;
