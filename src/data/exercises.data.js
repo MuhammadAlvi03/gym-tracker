@@ -32,8 +32,17 @@ export const create = (workoutId, name) => {
 
 export const updateName = (exerciseId, name) => {
     const exercise = findByExerciseId(exerciseId);
-    if (!exercise) return null;
+    if (!exercise) return false;
     
     exercise.name = name;
     return exercise;
+}
+
+
+export const deleteExerciseById = (exerciseId) => {
+    const exercise = findByExerciseId(exerciseId);
+    if (!exercise) return false;
+
+    exercises = exercises.filter(e => e !== exercise);
+    return true;
 }

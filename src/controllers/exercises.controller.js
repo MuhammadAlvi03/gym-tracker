@@ -1,7 +1,8 @@
 import {
     findByWorkoutId,
     create,
-    updateName
+    updateName,
+    deleteExerciseById
 } from "../data/exercises.data.js"
 import { isValidId } from "../utils/validation.js";
 
@@ -52,7 +53,7 @@ export const updateExerciseName = (req, res) => {
     if (name === undefined) {
         return res.status(400).json({error: "No fields provided to update"});
     }
-    
+
     if (typeof(name) !== "string" || !name.trim()) {
         return res.status(400).json({error: "Invalid name"});
     }
@@ -65,4 +66,20 @@ export const updateExerciseName = (req, res) => {
     }
     
     res.status(200).json(updated);
+}
+
+
+export const deleteExercise = (req, res) => {
+    const exerciseId = Number(req.params.exerciseId);
+    if (!isValidId(exerciseId)) {
+        return res.status(400).json({error: "Invalid exerciseId"});
+    }
+
+    const deleted = deleteExerciseById(exerciseId);
+    if (!deleted) {
+        return res.json(404).json({error: "No exercise found"});
+    }
+    
+    res.status(204);
+
 }
