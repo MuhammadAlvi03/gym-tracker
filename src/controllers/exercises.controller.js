@@ -119,3 +119,17 @@ export const getSets = (req, res) => {
     const exerciseSets = setsData.findAllByExerciseId(exerciseId);
     res.status(200).json(exerciseSets)
 }
+
+export const deleteSet = (req, res) => {
+    const setId = Number(req.params.setId);
+    if (!isValidId(setId)) {
+        return res.status(400).json({error: "Invalid setId"});
+    }
+
+    const deleted = setsData.deleteSetById(setId);
+    if (!deleted) {
+        return res.status(404).json({error: "No set found"});
+    }
+    
+    res.status(204);
+}

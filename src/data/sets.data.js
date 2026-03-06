@@ -1,6 +1,9 @@
 let sets = [];
 let nextSetId = 1;
 
+const findSetById = (setId) => 
+    sets.find(s => s.id === setId);
+
 export const findAllByExerciseId = (exerciseId) => 
     sets.filter(s => s.exerciseId === exerciseId);
 
@@ -22,4 +25,13 @@ export const createSet = (exerciseId, weight, reps) => {
 
     sets.push(createdSet);
     return createdSet;
+}
+
+
+export const deleteSetById = (setId) => {
+    const set = findSetById(setId);
+    if (!set) return false;
+
+    sets = sets.filter(s => s != set);
+    return true;
 }
