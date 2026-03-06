@@ -1,4 +1,4 @@
-import { isValidId } from "../utils/validation.js";
+import { isValidId, validateName } from "../utils/validation.js";
 import {
     findByWorkoutId,
     create,
@@ -6,6 +6,7 @@ import {
     deleteExerciseById,
 } from "../data/exercises.data.js"
 import * as setsData from "../data/sets.data.js";
+
 
 export const getExercises = (req, res) => {
     const workoutId = Number(req.params.workoutId);
@@ -16,26 +17,21 @@ export const getExercises = (req, res) => {
     res.status(200).json(findByWorkoutId(workoutId));
 }
 
+
 export const createExercise = (req, res) => {
     const workoutId =  Number(req.params.workoutId);
     if (!isValidId(workoutId)) {
         return res.status(400).json({error: "Invalid workoutId"});
     }
 
-    let { name } = req.body;
+    const name = validateName(req.body.name);
 
-    // ----------- can be extracted into validation function
-    if (name === undefined) {
-        return res.status(400).json({error: "No fields provided to update"});
+    if (!name.valid) {
+        return res.status(400).json({error: name.error});
     }
 
-    if (typeof(name) !== "string" || !name.trim()) {
-        return res.status(400).json({error: "Invalid name"});
-    }
-    // -----------
+    const exercise = create(workoutId, name.value);
     
-    name = name.trim();
-    const exercise = create(workoutId, name);
     if (!exercise) {
         return res.status(400).json({error: "Unable to create exercise"});
     }
@@ -50,16 +46,12 @@ export const updateExerciseName = (req, res) => {
         return res.status(400).json({error: "Invalid exerciseId"});
     }
 
-    let { name } = req.body;
-    if (name === undefined) {
-        return res.status(400).json({error: "No fields provided to update"});
+    const name = validateName(req.body.name);
+
+    if (!name.valid) {
+        return res.status(400).json({error: name.error});
     }
 
-    if (typeof(name) !== "string" || !name.trim()) {
-        return res.status(400).json({error: "Invalid name"});
-    }
-
-    name = name.trim();
     const updated = updateName(exerciseId, name);
     
     if (!updated) {
@@ -119,6 +111,7 @@ export const getSets = (req, res) => {
     const exerciseSets = setsData.findAllByExerciseId(exerciseId);
     res.status(200).json(exerciseSets)
 }
+
 
 export const deleteSet = (req, res) => {
     const setId = Number(req.params.setId);
