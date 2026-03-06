@@ -6,59 +6,63 @@ import {
     deleteById
 } from "../data/workouts.data.js";
 
-// get workouts
+
+// GET /workouts
+// Returns all workout objects
 export const getWorkouts = (req, res) => {
-    res.json(findAll());
+    res.status(200).json(findAll());
 };
 
-// create workout
+
+// POST /workouts
+// Required JSON body: { name: string }
+// Returns created workout object
 export const createWorkout = (req, res) => {
     let { name } = req.body;
     
-    if (typeof(name) !== "string") {
+    if (typeof(name) !== "string")
         return res.status(400).json({ error: "Invalid name"});
-    }
 
     name = name.trim();
     
-    if (!name) {
+    if (!name)
         return res.status(400).json({ error: "name is required" });
-    }
 
-    // create new workout
     const createdWorkout = create(name);
 
     res.status(201).json(createdWorkout);   // set status to 201: creation successful
 }
 
 
-// update workout
+// PATCH /workouts/:workoutId
+// Required JSON body: { name: string }
+// Returns updated workout object
 export const updateWorkout = (req, res) => {
     const workoutId = Number(req.params.workoutId);
 
-    if (!Number.isInteger(workoutId) || workoutId < 1) {
+    if (!Number.isInteger(workoutId) || workoutId < 1)
         return res.status(400).json({error: "Invalid workoutId"});
-    }
 
     let { name } = req.body;
-    if (name === undefined) {
-        return res.status(400).json({error: "No fields provided to update"});
-    }
 
-    if (typeof(name) !== "string" || !name.trim()) {
+    if (name === undefined)
+        return res.status(400).json({error: "No fields provided to update"});
+
+    if (typeof(name) !== "string" || !name.trim())
         return res.status(400).json({error: "Invalid name"});
-    }
 
     name = name.trim();
     const updated = updateName(workoutId, name);
 
-    if (!updated) {
+    if (!updated)
         return res.status(404).json({error: "Workout not found"});
-    }
 
     res.status(200).json(updated);
 }
 
+
+// GET /workouts/:workoutId
+// Returns workout matching workoutId
 export const getWorkoutById = (req, res) => {
     const workoutId = Number(req.params.workoutId);
     if (!Number.isInteger(workoutId) || workoutId < 1) {
@@ -73,16 +77,16 @@ export const getWorkoutById = (req, res) => {
     res.status(200).json(workout);
 }
 
+
+// DELETE /workouts/:workoutId
 export const deleteWorkout = (req, res) => {
     const workoutId = Number(req.params.workoutId);
-    if (!Number.isInteger(workoutId) || workoutId < 1) {
+    if (!Number.isInteger(workoutId) || workoutId < 1)
         return res.status(400).json({error: "Invalid workoutId"});
-    }
     
 
-    if (!deleteById(workoutId)) {
+    if (!deleteById(workoutId))
         return res.status(404).json({error: "No workout found"});
-    }
 
     res.status(204);
 }
