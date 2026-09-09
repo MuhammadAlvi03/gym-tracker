@@ -88,5 +88,5 @@ export const deleteWorkout = (req, res) => {
     if (!deleteById(workoutId))
         return res.status(404).json({error: "No workout found"});
 
-    res.status(204);
+    res.status(204).send();
 }
