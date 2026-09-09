@@ -55,7 +55,7 @@ export const updateExerciseName = (req, res) => {
     if (!name.valid)
         return res.status(400).json({error: name.error});
 
-    const updated = updateName(exerciseId, name);
+    const updated = updateName(exerciseId, name.value());
     
     if (!updated)
         return res.json({error: "No exercise found"});
@@ -76,7 +76,7 @@ export const deleteExercise = (req, res) => {
         return res.status(404).json({error: "No exercise found"});
     }
     
-    res.status(204);
+    res.status(204).send();
 }
 
 
@@ -130,5 +130,5 @@ export const deleteSet = (req, res) => {
         return res.status(404).json({error: "No set found"});
     }
     
-    res.status(204);
+    res.status(204).send();
 }
