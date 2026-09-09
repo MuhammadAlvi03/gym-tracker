@@ -55,7 +55,7 @@ export const updateExerciseName = (req, res) => {
     if (!name.valid)
         return res.status(400).json({error: name.error});
 
-    const updated = updateName(exerciseId, name.value());
+    const updated = updateName(exerciseId, name.value);
     
     if (!updated)
         return res.json({error: "No exercise found"});
