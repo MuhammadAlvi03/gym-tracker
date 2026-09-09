@@ -5,7 +5,8 @@ import {
     updateExerciseName,
     deleteExercise,
     addSet,
-    getSets
+    getSets,
+    deleteSet
 } from "../controllers/exercises.controller.js";
 
 const router = Router({mergeParams: true});
@@ -16,5 +17,6 @@ router.patch("/:exerciseId", updateExerciseName);
 router.delete("/:exerciseId", deleteExercise);
 router.get("/:exerciseId/sets", getSets);
 router.post("/:exerciseId/sets", addSet);
+router.post("/:exerciseId/sets", deleteSet);
 
 export default router;
