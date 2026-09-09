@@ -17,6 +17,6 @@ router.patch("/:exerciseId", updateExerciseName);
 router.delete("/:exerciseId", deleteExercise);
 router.get("/:exerciseId/sets", getSets);
 router.post("/:exerciseId/sets", addSet);
-router.post("/:exerciseId/sets", deleteSet);
+router.delete("/:exerciseId/sets/:setId", deleteSet);
 
 export default router;
